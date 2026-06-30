@@ -95,11 +95,10 @@ Abra o navegador e acesse o endereço utilizando o prefixo HTTPS na porta de esc
 A trilha analítica e os relatórios técnicos do projeto estão isolados e estruturados na seguinte árvore de diretórios:
 
 ## docs
-**dev-work-report.md (Sumário de entregas, marcos temporais e homologação de blocos de desenvolvimento)**
-**dev-studies-report.md (Fundamentação acadêmica de álgebra relacional, conjuntos numéricos e estruturas B-Tree)**
-**decision-notes.md (Caderno de arquitetura justificando decisões de projeto e trade-offs de engenharia)**
-**dev-engineering-resolutions-report.md (Relatório de resolução de bugs, tratamento de exceções em tempo de execução e correções de latência na interface)**
-
+* **dev-work-report.md:** Sumário de entregas, marcos temporais e homologação de blocos de desenvolvimento.
+* **dev-studies-report.md:** Fundamentação acadêmica de álgebra relacional, conjuntos numéricos e estruturas B-Tree.
+* **decision-notes.md:** Caderno de arquitetura justificando decisões de projeto e trade-offs de engenharia.
+* **dev-engineering-resolutions-report.md:** Relatório de resolução de bugs, tratamento de exceções em tempo de execução e correções de latência na interface.
 
 
 
