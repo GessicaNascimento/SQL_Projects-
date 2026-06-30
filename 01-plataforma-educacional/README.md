@@ -2,7 +2,7 @@
 
 ---
 
-## Author: Géssica Nascimento**
+## Author: Géssica Nascimento
 
 **Systems Analysis & Development Student**
 
