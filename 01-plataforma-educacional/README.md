@@ -1,8 +1,8 @@
 # Plataforma Educacional - Engine de Persistência e Visibilidade Abstrata
 
-### Author: Géssica Nascimento
-### Systems Analysis & Development Student
-### Date: 30/06/2026
+**Author: Géssica Nascimento**
+**Systems Analysis & Development Student**
+**Date: 30/06/2026**
 
 Este projeto foi desenvolvido como um objeto de estudo avançado focado em engenharia de dados, cobrindo todo o ciclo de vida de uma aplicação de banco de dados relacional. O escopo compreende desde o levantamento de requisitos abstratos e modelagem conceitual matemática até a implementação física no PostgreSQL, com otimização de buscas e blindagem de rede via criptografia em trânsito. O sistema simula as regras de negócio de um sistema de controle acadêmico de grande porte (como o SIGA), servindo de matriz arquitetural para aplicações corporativas.
 
