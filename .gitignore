@@ -24,6 +24,20 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# ==========================================
+# Customizações do Projeto (SQL Projects)
+# ==========================================
+
+# Segurança de Infraestrutura: Bloquear chaves privadas e certificados reais em produção
+*.pem
+
+# Sistema Operacional macOS (Previne poluição de metadados no Finder)
+.DS_Store
+
+# Diretórios de IDEs (Caso você venha a abrir o projeto no VS Code ou PyCharm no futuro)
+.vscode/
+.idea/
 MANIFEST
 
 # PyInstaller
