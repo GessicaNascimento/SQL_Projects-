@@ -101,3 +101,12 @@ A trilha analítica e os relatórios técnicos do projeto estão isolados e estr
 * **dev-engineering-resolutions-report.md:** Relatório de resolução de bugs, tratamento de exceções em tempo de execução e correções de latência na interface.
 
 
+## 🗺️ Diagrama de Engenharia Reversa (3FN/FNBC)
+
+Abaixo está o mapeamento físico e relacional obtido via DBeaver:
+
+![Diagrama do Banco de Dados](img/diagrama_banco.png)
+
+
+
+
