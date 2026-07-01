@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura do Banco de Dados Interativa</title>
+    <style>
+        /* --- ESTILOS GERAIS (CSS) --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: #121214;
+            color: #e1e1e6;
+            padding: 30px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px dashed #29292e;
+            padding-bottom: 20px;
+        }
+
+        header h1 { color: #04d361; font-size: 2rem; margin-bottom: 10px; }
+        header p { color: #a8a8b3; font-size: 1rem; }
+
+        /* Seção de Resumo do Projeto */
+        .secao-objetivos {
+            background-color: #1a1a1e;
+            border: 1px solid #29292e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        .secao-objetivos h3 { color: #8257e5; margin-bottom: 10px; text-transform: uppercase; font-size: 1.1rem; }
+        .secao-objetivos ul { margin-left: 20px; color: #c4c4cc; font-size: 0.9rem; line-height: 1.6; }
+
+        h2 { color: #8257e5; font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Grid Principal Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        /* Blocos Geométricos de Tabelas */
+        .card-tabela {
+            background-color: #202024;
+            border: 1px solid #323238;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, transform 0.15s ease;
+        }
+
+        .card-tabela:hover {
+            transform: translateY(-2px);
+        }
+
+        .tabela-header {
+            background-color: #29292e;
+            padding: 12px;
+            font-weight: bold;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+        }
+
+        .tag-pk { background-color: #e1a412; color: #000; padding: 2px 6px; font-size: 0.75rem; border-radius: 3px; font-weight: bold; }
+        .tabela-atributos { padding: 12px; }
+
+        .atributo-linha {
+            padding: 8px 0;
+            border-bottom: 1px solid #29292e;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        /* Sinalização de Restrições Técnicas */
+        .foreign-key { color: #a8a8b3; border-left: 3px solid #8257e5; padding-left: 8px; }
+        .btree-indexed { color: #04d361; font-weight: bold; border-left: 3px solid #04d361; padding-left: 8px; }
+        .tipo { color: #7c7c8a; font-size: 0.85rem; }
+
+        /* Destaque Relacional Dinâmico (Hover JS) */
+        .tabela-relacionada-ativa {
+            border-color: #8257e5 !important;
+            box-shadow: 0 0 20px rgba(130, 87, 229, 0.4);
+        }
+
+        /* Camada de Tuplas/Dados */
+        .corpo-dados {
+            background-color: #1a1a1e;
+            border-top: 1px solid #323238;
+            padding: 8px;
+        }
+
+        .tupla-linha {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            color: #c4c4cc;
+            border-bottom: 1px dashed #29292e;
+        }
+        .tupla-id { color: #e1a412; font-weight: bold; }
+
+        /* Visualização do Índice B-Tree */
+        .arvore-btree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1e;
+            padding: 25px;
+            border: 1px solid #29292e;
+            border-radius: 8px;
+        }
+
+        .no-raiz {
+            background-color: #04d361;
+            color: #000000;
+            padding: 15px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .folhas-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 35px;
+            width: 100%;
+        }
+
+        .no-folha {
+            flex: 1;
+            background-color: #29292e;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px dashed #323238;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: transform 0.15s ease;
+        }
+        .no-folha:hover { transform: scale(1.02); }
+        .no-folha.ativo { border: 2px solid #04d361; background-color: #202024; }
+
+        /* --- 🔒 SEÇÃO NOVA: VISUALIZAÇÃO DE BLINDAGEM DE REDE (HTTPS) --- */
+        .painel-seguranca {
+            background-color: #141923;
+            border: 1px solid #1f293d;
+            border-left: 4px solid #04d361;
+            padding: 25px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .seguranca-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(4, 211, 97, 0.1);
+            color: #04d361;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            border: 1px solid #04d361;
+            margin-bottom: 15px;
+        }
+
+        .card-metricas-seguranca {
+            background-color: #1a1a1e;
+            padding: 15px;
+            border: 1px solid #29292e;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .card-metricas-seguranca span { color: #04d361; font-weight: bold; }
+
+        /* Desenho do Handshake em CSS */
+        .diagrama-handshake {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #0d1117;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px dashed #21262d;
+        }
+
+        .linha-fluxo-handshake {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #8b949e;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 5px;
+        }
+        .seta-fluxo { color: #58a6ff; font-weight: bold; }
+
+        /* --- PAINEL LATERAL (SIDEBAR) --- */
+        .sidebar-metadados {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 430px;
+            height: 100vh;
+            background-color: #1a1a1e;
+            border-left: 2px solid #323238;
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-metadados.ativa { right: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #323238; padding-bottom: 15px; margin-bottom: 20px; }
+        .sidebar-header h3 { color: #04d361; font-size: 1.1rem; }
+        #btn-fechar-sidebar { background: none; border: none; color: #a8a8b3; font-size: 2rem; cursor: pointer; }
+        #btn-fechar-sidebar:hover { color: #ef4444; }
+        .meta-descricao { font-size: 0.85rem; color: #a8a8b3; margin-bottom: 25px; line-height: 1.5; }
+        .tabela-metadados-internos { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .tabela-metadados-internos th, .tabela-metadados-internos td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #29292e; }
+        .tabela-metadados-internos th { color: #8257e5; text-transform: uppercase; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mapeamento Relacional Interativo</h1>
+        <p>Modelo Abstrato de Persistência Física do Banco de Dados</p>
+    </header>
+
+    <section class="secao-objetivos">
+        <h3>Objetivo Estrutural do Sistema</h3>
+        <ul>
+            <li><strong>Modelagem Relacional (3FN):</strong> Decomposição completa de tabelas multivaloradas para eliminação de redundâncias e anomalias de atualização.</li>
+            <li><strong>Integridade no Kernel:</strong> Travas físicas do PostgreSQL (<code>FOREIGN KEY</code>, <code>CHECK Constraints</code>) blindando o armazenamento de dados direto no disco.</li>
+            <li><strong>Aceleração de I/O:</strong> Índices estruturados em árvores balanceadas (<code>B-Tree</code>) mitigando buscas sequenciais exaustivas no disco rígido.</li>
+        </ul>
+    </section>
+
+    <div class="dashboard-container">
+        <section class="coluna-tabelas">
+            <h2>Tabelas do Schema Público (Clique para Detalhes)</h2>
+            
+            <div class="card-tabela" id="tb-students">
+                <div class="tabela-header">students <span class="tag-pk">PK (id_aluno)</span></div>
+                <div class="tabela-atributos">
+                    <div class="atributo-linha btree-indexed">ra <span class="tipo">CHAR(8) [B-Tree]</span></div>
+                    <div class="atributo-linha foreign-key">id_curso <span class="tipo">INT [FK]</span></div>
+                </div>
+                <div class="corpo-dados" id="dados-students"></div>
+            </div>
+
+            <div class="card-tabela" id="tb-cursos">
+                <div class="tabela-header">cursos <span class="tag-pk">PK (id_curso)</span></div>
+                <div class="tabela-atributos">
+                    <div class="atributo-linha btree-indexed">nome_curso <span class="tipo">VARCHAR(50) [B-Tree]</span></div>
+                </div>
+                <div class="corpo-dados" id="dados-cursos"></div>
+            </div>
+        </section>
+
+        <section class="coluna-indices">
+            <h2>Mecânica de Busca Indexada</h2>
+            <div class="arvore-btree">
+                <div class="no-raiz">Nó Interno Raiz: [Ponteiro RA: 26040812]</div>
+                <div class="folhas-container">
+                    <div class="no-folha" id="folha-a">Folha Mapeada A (RAs &lt; 26040812)</div>
+                    <div class="no-folha ativo" id="folha-b">Folha Mapeada B (RA: 26040812)</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="painel-seguranca">
+        <div class="status-badge">🔒 HTTPS / TLS BLINDAGEM ATIVA</div>
+        <h2>Segurança da Infraestrutura de Rede</h2>
+        <p style="font-size: 0.9rem; color: #a8a8b3; margin-bottom: 15px;">
+            Este ecossistema de dados opera sob rígido protocolo de segurança em trânsito, impedindo ataques de interceptação de dados.
+        </p>
+        
+        <div class="seguranca-grid">
+            <div class="card-metricas-seguranca">
+                <p><strong>Criptografia:</strong> <span>TLSv1.3 (Transport Layer Security)</span></p>
+                <p><strong>Algoritmo de Chave:</strong> <span>RSA 2048-bit (Assinatura Digital)</span></p>
+                <p><strong>Escopo:</strong> Criptografia fim-a-fim entre o Navegador do Recrutador e o Kernel do Back-end.</p>
+            </div>
+            
+            <div class="diagrama-handshake">
+                <div style="font-size: 0.8rem; font-weight: bold; color: #58a6ff; margin-bottom: 5px;">Mapeamento do Handshake Realizado:</div>
+                <div class="linha-fluxo-handshake"><span>Navegador</span> <span class="seta-fluxo">── ClientHello ──►</span> <span>Servidor</span></div>
+                <div class="linha-fluxo-handshake"><span>Navegador</span> <span class="seta-fluxo">◄── ServerHello + Cert ──</span> <span>Servidor</span></div>
+                <div class="linha-fluxo-handshake"><span>Navegador</span> <span class="seta-fluxo">── Troca de Chaves ──►</span> <span>Servidor</span></div>
+                <div class="linha-fluxo-handshake" style="border: none;"><span style="color:#04d361;">Sessão Segura</span> <span style="color:#04d361;">◄── [Canal Criptografado] ──►</span> <span style="color:#04d361;">Dados Protegidos</span></div>
+            </div>
+        </div>
+    </section>
+
+    <aside class="sidebar-metadados" id="painel-metadados">
+        <div class="sidebar-header">
+            <h3>Metadados: <span id="meta-nome-tabela">---</span></h3>
+            <button id="btn-fechar-sidebar">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <p class="meta-descricao" id="meta-descricao">Descrição do objeto.</p>
+            <table class="tabela-metadados-internos">
+                <thead>
+                    <tr>
+                        <th>Coluna</th>
+                        <th>Tipo Físico</th>
+                        <th>Restrição</th>
+                    </tr>
+                </thead>
+                <tbody id="meta-linhas-tabela"></tbody>
+            </table>
+        </div>
+    </aside>
+
+    <script>
+        const mockDatabase = {
+            cursos: [
+                { id_curso: 1, nome_curso: "Análise e Des. de Sistemas" },
+                { id_curso: 2, nome_curso: "Segurança da Informação" }
+            ],
+            students: [
+                { id_aluno: 1, ra: "26040812", id_curso: 1 },
+                { id_aluno: 2, ra: "20261145", id_curso: 1 }
+            ]
+        };
+
+        const metadataDictionary = {
+            "tb-students": {
+                tabela: "students",
+                descricao: "Tabela de dados cadastrais dos estudantes. O campo 'ra' possui restrição de unicidade e índice B-Tree ativo para varreduras indexadas de alta performance.",
+                campos: [
+                    { nome: "id_aluno", tipo: "SERIAL", restricao: "PRIMARY KEY" },
+                    { nome: "ra", tipo: "CHAR(8)", restricao: "UNIQUE / B-TREE" },
+                    { nome: "id_curso", tipo: "INT", restricao: "FOREIGN KEY (cursos)" }
+                ]
+            },
+            "tb-cursos": {
+                tabela: "cursos",
+                descricao: "Armazena a matriz curricular da instituição. Possui integridade referencial vinculada à tabela de Departamentos via Kernel do Postgres.",
+                campos: [
+                    { nome: "id_curso", tipo: "SERIAL", restricao: "PRIMARY KEY" },
+                    { nome: "nome_curso", tipo: "VARCHAR(50)", restricao: "NOT NULL / B-TREE" }
+                ]
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderizarTuplas();
+
+            const cardStudents = document.getElementById("tb-students");
+            const cardCursos = document.getElementById("tb-cursos");
+            const folhaAtiva = document.getElementById("folha-b");
+            const folhaInativa = document.getElementById("folha-a");
+            const sidebar = document.getElementById("painel-metadados");
+            const btnFechar = document.getElementById("btn-fechar-sidebar");
+
+            if (cardStudents && cardCursos) {
+                cardStudents.addEventListener("mouseenter", () => {
+                    cardStudents.classList.add("tabela-relacionada-ativa");
+                    cardCursos.classList.add("tabela-relacionada-ativa");
+                });
+                cardStudents.addEventListener("mouseleave", () => {
+                    cardStudents.classList.remove("tabela-relacionada-ativa");
+                    cardCursos.classList.remove("tabela-relacionada-ativa");
+                });
+
+                cardStudents.addEventListener("click", () => dispararSidebar("tb-students"));
+                cardCursos.addEventListener("click", () => dispararSidebar("tb-cursos"));
+            }
+
+            if (btnFechar) {
+                btnFechar.addEventListener("click", () => sidebar.classList.remove("ativa"));
+            }
+
+            if (folhaAtiva) {
+                folhaAtiva.addEventListener("click", () => {
+                    gerarAlertaFlutuante("⚡ B-Tree Index Scan: RA localizado na Folha Ativa. Complexidade O(log N) atingida em 0.4ms!");
+                });
+            }
+            if (folhaInativa) {
+                folhaInativa.addEventListener("click", () => {
+                    gerarAlertaFlutuante("ℹ️ Varredura Descartada: O nó chave direcionou a busca para a outra ramificação da árvore.");
+                });
+            }
+        });
+
+        function renderizarTuplas() {
+            const containerCursos = document.getElementById("dados-cursos");
+            const containerStudents = document.getElementById("dados-students");
+
+            if (containerCursos) {
+                containerCursos.innerHTML = mockDatabase.cursos.map(c => `
+                    <div class="tupla-linha">
+                        <span class="tupla-id">#${c.id_curso}</span>
+                        <span>${c.nome_curso}</span>
+                    </div>
+                `).join('');
+            }
+
+            if (containerStudents) {
+                containerStudents.innerHTML = mockDatabase.students.map(s => `
+                    <div class="tupla-linha">
+                        <span class="tupla-id">ID:${s.id_aluno}</span>
+                        <span>RA:${s.ra}</span>
+                        <span style="color:#8257e5; font-weight:bold;">FK_Curso:${s.id_curso}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function dispararSidebar(idTabela) {
+            const dadosMeta = metadataDictionary[idTabela];
+            const sidebar = document.getElementById("painel-metadados");
+            
+            if (!dadosMeta || !sidebar) return;
+
+            document.getElementById("meta-nome-tabela").innerText = dadosMeta.tabela;
+            document.getElementById("meta-descricao").innerText = dadosMeta.descricao;
+
+            const corpoTabela = document.getElementById("meta-linhas-tabela");
+            corpoTabela.innerHTML = dadosMeta.campos.map(campo => `
+                <tr>
+                    <td style="color: #04d361; font-weight: bold;">${campo.nome}</td>
+                    <td><code>${campo.tipo}</code></td>
+                    <td style="color: #e1a412;">${campo.restricao}</td>
+                </tr>
+            `).join('');
+
+            sidebar.classList.add("ativa");
+        }
+
+        function gerarAlertaFlutuante(msg) {
+            const alerta = document.createElement("div");
+            alerta.innerText = msg;
+            alerta.style.position = "fixed";
+            alerta.style.bottom = "25px";
+            alerta.style.right = "25px";
+            alerta.style.backgroundColor = "#04d361";
+            alerta.style.color = "#000000";
+            alerta.style.padding = "15px 20px";
+            alerta.style.borderRadius = "4px";
+            alerta.style.fontSize = "0.85rem";
+            alerta.style.fontWeight = "bold";
+            alerta.style.zIndex = "3000";
+            
+            document.body.appendChild(alerta);
+            setTimeout(() => alerta.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
