@@ -43,7 +43,7 @@ Este relatório consolida o sumário de entregas, os marcos temporais, as decis�
 * **Chave-Primária:** id_disciplinas
 * **Chaves-Estrangeiras:** id_cursos, id_instrutores
 * **Relacionamentos:** Conecta-se com alunos, professores e notas.
-* **Atributos:** id_disciplinas, id_matemática, id_banco_de_dados, id_redes, id_programação, id_arquitetura, id_so, id_IA, id_lógica, id_inglês, id_calculo_I, id_calculo_II, id_criptografia, id_analise_de_dados, id_engenharia, id_linux, id_cursos, id_instrutores.
+* **Atributos:** id_disciplinas, matemática, banco_de_dados, redes, programação, arquitetura, so, IA, lógica, inglês, calculo_I, calculo_II, criptografia, analise_de_dados, engenharia, linux, id_cursos, id_instrutores.
 
 ---
  
