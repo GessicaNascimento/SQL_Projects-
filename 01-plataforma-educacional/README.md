@@ -53,7 +53,7 @@ A estrutura física do banco de dados está consolidada através das seguintes t
 
 ---
 
-## 💻 Visualização de Infraestrutura e Blindagem de Rede
+## Visualização de Infraestrutura e Blindagem de Rede
 
 A interface visual do projeto foi projetada para atuar como um painel de telemetria arquitetural, exibindo de forma interativa o funcionamento interno do back-end.
 
@@ -101,23 +101,3 @@ A trilha analítica e os relatórios técnicos do projeto estão isolados e estr
 * **dev-engineering-resolutions-report.md:** Relatório de resolução de bugs, tratamento de exceções em tempo de execução e correções de latência na interface.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pem -subj "/CN=localhost"
